@@ -5,16 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 
-class ParcerController extends Controller
-{
-  private $link = 'http://www.meteorb.ru/urovni-rek';
+class ParcerController extends Controller{
 
 public static function GetData(){
- // Get html remote text.
- $html = file_get_contents($this -> link);
+
+  $html = file_get_contents(env('URL_PARSER', '1'));
 
  // Create new instance for parser.
- $crawler = new Crawler(null, $this -> link);
+ $crawler = new Crawler(null, env('URL_PARSER', '1'));
  $crawler->addHtmlContent($html, 'UTF-8');
  // Get title text.
  $urovin_tr_belaj_sterlitamak = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Urovin;
 
+
 class UrovinController extends Controller
 {
     /**
@@ -19,10 +20,9 @@ class UrovinController extends Controller
     }
 
     private function Parser(){
-      $link = 'http://www.meteorb.ru/urovni-rek';
-      $html = file_get_contents($link);
+      $html = file_get_contents(env('URL_PARSER', '1'));
       // Create new instance for parser.
-      $crawler = new Crawler(null, $link);
+      $crawler = new Crawler(null, env('URL_PARSER', '1'));
       $crawler->addHtmlContent($html, 'UTF-8');
       // Get title text.
       $urovin_tr_belaj_sterlitamak = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
@@ -43,71 +43,32 @@ class UrovinController extends Controller
       return $Belaj_sterlitamak;
     }
 
-   public function Test() {
+   public function GetParser() {
       $date = date('Y-m-d');
       if(Urovin::UrovinNaDatu($date)) {
         $Belaj_sterlitamak = $this->Parser();
         $Belaj_sterlitamak['reka_id'] = 1;
         $urovin = Urovin::create($Belaj_sterlitamak);
-        dd($urovin);
       }
 
     }
 
+    public function generationImg(){
+     return Urovin::generationImg();
+    //  return '<html><img src="/foo88.jpg"></html>';
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function vk(Request $request){
+  //   dd($request);
+      return '88';
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+  public function Test(){
+     $PosterImg = new SendPosterImgController($this -> generationImg());
+     $PosterImg -> SendCoverToGroup();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+
 }
