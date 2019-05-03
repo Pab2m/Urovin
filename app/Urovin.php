@@ -19,15 +19,9 @@ public static function UrovinNaDatu($date){
 }
 
 public static function generationImg(){
-  // $manager = new Intervention\Image\ImageManager(array('driver' => 'imagick'));
-  // $image = Image::make($_SERVER['DOCUMENT_ROOT'].'/foo.jpg');
-  // $image->text("8814", 20, 180, function($font){
-  //   $font->size(50);
-  //   $font->color('#000');
-  // });
-  // $image->save($_SERVER['DOCUMENT_ROOT'].'/foo88.jpg');
+
   $manager = new ImageManager(array('driver' => 'imagick'));
-$image = $manager->canvas(150, 70);
+  $image = $manager->canvas(150, 70);
 $image -> text("р.Белая", 4, 20, function($font){
   $font -> size(24);
   $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
@@ -41,8 +35,6 @@ $image -> text("07.04.2019", 4, 63, function($font){
   $font -> size(14);
   $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/Oswald-Regular.ttf');
 });
-
-//  $image->insert($_SERVER['DOCUMENT_ROOT'].'/img/volna.png',null,61,5);
 
   $image->text("+30 см",80,21, function($font){
     $font -> size(24);
