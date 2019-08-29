@@ -1,26 +1,8 @@
 <?php
-
-
-
-// Route::get('/', function () {
-//      return view('welcome');
-// });
-// Route::get('/', function()
-// {
-// $manager = new Intervention\Image\ImageManager(array('driver' => 'imagick'));
-// $image = Image::make($_SERVER['DOCUMENT_ROOT'].'/foo.jpg');
-// $image->text("8814", 20, 180, function($font){
-//   $font->size(50);
-//   $font->color('#000');
-// });
-// $image->save($_SERVER['DOCUMENT_ROOT'].'/foo88.jpg');
-//
-//
-// });
-
 Route::get('/parser', 'UrovinController@GetParser');
-// Route::get('/test', 'UrovinController@generationImg');
-Route::get('/test', 'UrovinController@Test');
+Route::get('/test', 'UrovinController@GetCurrentWater');
+
+Route::get('/group/download/cover', 'UrovinController@DownloadGroupCover');
 Route::match(['get','post'], '/api/vk', ['uses'=>'UrovinController@vk', 'as'=>'vk']);
 
 

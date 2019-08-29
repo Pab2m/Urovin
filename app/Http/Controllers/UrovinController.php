@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Symfony\Component\DomCrawler\Crawler;
 use App\Urovin;
+use App\UrovinOnYesterdayToday;
+use Intervention\Image\ImageManager;
+use Image;
 
 
 class UrovinController extends Controller
@@ -50,25 +53,63 @@ class UrovinController extends Controller
         $Belaj_sterlitamak['reka_id'] = 1;
         $urovin = Urovin::create($Belaj_sterlitamak);
       }
-
     }
 
-    public function generationImg(){
-     return Urovin::generationImg();
-    //  return '<html><img src="/foo88.jpg"></html>';
+    public static function generationImg($UrovinOnYesterdayToday){ //class UrovinOnYesterdayToday
+      if($UrovinOnYesterdayToday->count < 0){
+        return; 
+      }
 
+      $manager = new ImageManager(array('driver' => 'imagick'));
+      $image = $manager->canvas(150, 70);
+      $image -> text("р.Белая", 4, 20, function($font){
+      $font -> size(24);
+      $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
+    });
+
+    $image -> text("283 см", 5, 44, function($font){
+      $font -> size(24);
+      $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
+    });
+    $image -> text("07.04.2019", 4, 63, function($font){
+      $font -> size(14);
+      $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/Oswald-Regular.ttf');
+    });
+
+    //  $image->insert($_SERVER['DOCUMENT_ROOT'].'/img/volna.png',null,61,5);
+
+      $image->text("+30 см",80,21, function($font){
+        $font -> size(24);
+        $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
+      });
+
+      $image->text("313 см",87,45, function($font){
+        $font -> size(24);
+        $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
+      });
+
+      $image -> text("08.04.2019", 82, 63, function($font){
+        $font -> size(14);
+        $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/Oswald-Regular.ttf');
+      });
+
+     $poster = Image::make($_SERVER['DOCUMENT_ROOT'].'/foo.jpg');
+    $image-> save($_SERVER['DOCUMENT_ROOT'].'/urovin.png');
+     $poster -> insert($_SERVER['DOCUMENT_ROOT'].'/urovin.png', null, 120, 130 );
+     $poster-> save($_SERVER['DOCUMENT_ROOT'].'/foo88.jpg');
+     return $_SERVER['DOCUMENT_ROOT'].'/foo88.jpg';
     }
 
-    public function vk(Request $request){
-  //   dd($request);
-      return '88';
-    }
 
-  public function Test(){
+  public function DownloadGroupCover(){
      $PosterImg = new SendPosterImgController($this -> generationImg());
      $PosterImg -> SendCoverToGroup();
     }
 
+  public function GetCurrentWater(){
+    $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(date("d.m.Y"));
+    dd($UrovinOnYesterdayToday -> count);
+  }
 
 
 }
