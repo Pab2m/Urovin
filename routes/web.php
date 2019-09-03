@@ -1,5 +1,5 @@
 <?php
-Route::get('/parser', 'UrovinController@GetParser');
+Route::get('/parser/{reka}', 'UrovinController@GetParser');
 Route::get('/test', 'UrovinController@GetCurrentWater');
 
 Route::get('/group/download/cover', 'UrovinController@DownloadGroupCover');

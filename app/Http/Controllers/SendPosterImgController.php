@@ -39,6 +39,5 @@ class SendPosterImgController //extends Controller
                 ['name'    => 'photo',
                 'contents' => fopen($this -> urlImg, 'r')]
         ]]);
-        dd($HttpClient->getBody());
   }
 }

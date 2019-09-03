@@ -5,7 +5,6 @@ namespace App;
 class UrovinOnYesterdayToday
 {
 var $Yesterday, $date;
-public $count;
 
 function __construct($TodayData, $reka_id = 1){//$TodayData = date("d.m.Y"), $reka_id = 1)
 

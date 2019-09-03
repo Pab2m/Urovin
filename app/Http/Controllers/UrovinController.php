@@ -8,7 +8,7 @@ use App\Urovin;
 use App\UrovinOnYesterdayToday;
 use Intervention\Image\ImageManager;
 use Image;
-
+use App\Reka;
 
 class UrovinController extends Controller
 {
@@ -29,35 +29,35 @@ class UrovinController extends Controller
       $crawler->addHtmlContent($html, 'UTF-8');
       // Get title text.
       $urovin_tr_belaj_sterlitamak = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
-      $Belaj_sterlitamak = [];
-      $Belaj_sterlitamak['reka_name'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(0) -> text());
-      $Belaj_sterlitamak['site'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(1) -> text());
-      $Belaj_sterlitamak['poiima'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(2) -> text());
-      $Belaj_sterlitamak['urovin'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(3) -> text());
-      $Belaj_sterlitamak['delta'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(4) -> text());
-
+      $Data = [];
+      $Data['reka_name'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(0) -> text());
+      $Data['site'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(1) -> text());
+      $Data['poiima'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(2) -> text());
+      $Data['urovin'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(3) -> text());
+      $Data['delta'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(4) -> text());
       $Str_data = $crawler->filter(".entry-content p")->text();
       $Array_date = array();
 
       preg_match("/.*([0-9]{2}\\.[0-9]{2}\\.[0-9]{4}).*/",$Str_data, $Array_date);
       $d1 = strtotime($Array_date[1]);
-      $Belaj_sterlitamak['date'] =  date("Y-m-d", $d1);;
+      $Data['date'] =  date("Y-m-d", $d1);;
 
-      return $Belaj_sterlitamak;
+      return $Data;
     }
 
-   public function GetParser() {
+   public function GetParser($reka) {
       $date = date('Y-m-d');
-      if(Urovin::UrovinNaDatu($date)) {
+      $Reka = Reka::where('url', $reka)->first();
+      if(Urovin::UrovinNaDatu($date, $Reka)) {
         $Belaj_sterlitamak = $this->Parser();
-        $Belaj_sterlitamak['reka_id'] = 1;
+        $Belaj_sterlitamak['reka_id'] = $Reka->id;
         $urovin = Urovin::create($Belaj_sterlitamak);
       }
     }
 
     public static function generationImg($UrovinOnYesterdayToday){ //class UrovinOnYesterdayToday
       if($UrovinOnYesterdayToday->count < 0){
-        return; 
+        return;
       }
 
       $manager = new ImageManager(array('driver' => 'imagick'));
@@ -108,7 +108,7 @@ class UrovinController extends Controller
 
   public function GetCurrentWater(){
     $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(date("d.m.Y"));
-    dd($UrovinOnYesterdayToday -> count);
+  //  dd($UrovinOnYesterdayToday -> count);
   }
 
 
