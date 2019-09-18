@@ -55,61 +55,80 @@ class UrovinController extends Controller
       }
     }
 
-    public static function generationImg($UrovinOnYesterdayToday){ //class UrovinOnYesterdayToday
-      if($UrovinOnYesterdayToday->count < 0){
-        return;
-      }
+    public static function generationImg($UrovinOnYesterdayToday, $name_img, $name_reki, $relative = false){ //class UrovinOnYesterdayToday
+      if(!$UrovinOnYesterdayToday instanceof UrovinOnYesterdayToday && $UrovinOnYesterdayToday->count = 0){
+        if(!$relative){
+          return $_SERVER['DOCUMENT_ROOT'].'/foo.jpg';
+        }
+          return '/foo.jpg';
+        }
 
       $manager = new ImageManager(array('driver' => 'imagick'));
       $image = $manager->canvas(150, 70);
-      $image -> text("р.Белая", 4, 20, function($font){
+      $image -> text("р.".$name_reki, 4, 20, function($font){
       $font -> size(24);
       $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
     });
-
-    $image -> text("283 см", 5, 44, function($font){
+   //"283 см"
+      $image -> text($UrovinOnYesterdayToday -> yesterdayUrovin.' см', 5, 44, function($font){
       $font -> size(24);
       $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
     });
-    $image -> text("07.04.2019", 4, 63, function($font){
+    $image -> text($UrovinOnYesterdayToday -> yesterdayDate, 4, 63, function($font){
       $font -> size(14);
       $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/Oswald-Regular.ttf');
     });
 
     //  $image->insert($_SERVER['DOCUMENT_ROOT'].'/img/volna.png',null,61,5);
 
-      $image->text("+30 см",80,21, function($font){
+      $image->text($UrovinOnYesterdayToday -> delta." см",80,21, function($font){
         $font -> size(24);
         $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
       });
 
-      $image->text("313 см",87,45, function($font){
+      $image->text($UrovinOnYesterdayToday -> todayUrovin." см",87,45, function($font){
         $font -> size(24);
         $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/AmaticSC-Bold.ttf');
       });
 
-      $image -> text("08.04.2019", 82, 63, function($font){
+      $image -> text($UrovinOnYesterdayToday -> todayDate, 82, 63, function($font){
         $font -> size(14);
         $font -> file($_SERVER['DOCUMENT_ROOT'].'/ttf/Oswald-Regular.ttf');
       });
 
      $poster = Image::make($_SERVER['DOCUMENT_ROOT'].'/foo.jpg');
-    $image-> save($_SERVER['DOCUMENT_ROOT'].'/urovin.png');
-     $poster -> insert($_SERVER['DOCUMENT_ROOT'].'/urovin.png', null, 120, 130 );
-     $poster-> save($_SERVER['DOCUMENT_ROOT'].'/foo88.jpg');
-     return $_SERVER['DOCUMENT_ROOT'].'/foo88.jpg';
+     $image-> save($_SERVER['DOCUMENT_ROOT'].'/'.$name_img.'_urovin.png');
+     $poster -> insert($_SERVER['DOCUMENT_ROOT'].'/'.$name_img.'_urovin.png', null, 120, 130 );
+     $poster-> save($_SERVER['DOCUMENT_ROOT'].'/'.$name_img.'.jpg');
+    if(!$relative){
+      return $_SERVER['DOCUMENT_ROOT'].'/'.$name_img.'.jpg';}
+      return '/'.$name_img.'.jpg';
     }
 
 
-  public function DownloadGroupCover(){
-     $PosterImg = new SendPosterImgController($this -> generationImg());
-     $PosterImg -> SendCoverToGroup();
+  public function DownloadGroupCover($reka){
+     $Reka = Reka::where('url', $reka)->first();
+     if($Reka instanceof Reka){
+       $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(date("m.d.y"), $Reka->id);
+       $PosterImg = new SendPosterImgController($this -> generationImg($UrovinOnYesterdayToday));
+       $PosterImg -> SendCoverToGroup();
+      }
     }
 
   public function GetCurrentWater(){
     $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(date("d.m.Y"));
-  //  dd($UrovinOnYesterdayToday -> count);
+
   }
 
 
+public function ImgPoster($url)
+{
+   $Reka = Reka::where('url', $url)->first();
+   if($Reka instanceof Reka){
+      $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(time(), $Reka->id);//date("d.m.y")
+      return '<img src="'.$this -> generationImg($UrovinOnYesterdayToday, $url, $Reka->name ,true).'">';
+   }
+
+
+}
 }

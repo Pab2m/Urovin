@@ -2,8 +2,10 @@
 Route::get('/parser/{reka}', 'UrovinController@GetParser');
 Route::get('/test', 'UrovinController@GetCurrentWater');
 
-Route::get('/group/download/cover', 'UrovinController@DownloadGroupCover');
+Route::get('/group/download/cover/{reka}', 'UrovinController@DownloadGroupCover');
 Route::match(['get','post'], '/api/vk', ['uses'=>'UrovinController@vk', 'as'=>'vk']);
+Route::get('/img/{reka}', 'UrovinController@ImgPoster');
+
 
 
 
