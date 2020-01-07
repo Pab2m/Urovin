@@ -28,20 +28,19 @@ class UrovinController extends Controller
       $crawler = new Crawler(null, env('URL_PARSER', '1'));
       $crawler->addHtmlContent($html, 'UTF-8');
       // Get title text.
-      $urovin_tr_belaj_sterlitamak = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
+      $urovin_tr_selected_rives = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
       $Data = [];
-      $Data['reka_name'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(0) -> text());
-      $Data['site'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(1) -> text());
-      $Data['poiima'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(2) -> text());
-      $Data['urovin'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(3) -> text());
-      $Data['delta'] = strip_tags($urovin_tr_belaj_sterlitamak -> eq(4) -> text());
-      $Str_data = $crawler->filter(".entry-content p")->text();
+      $Data['reka_name'] = strip_tags($urovin_tr_selected_rives -> eq(0) -> text());
+      $Data['site'] = strip_tags($urovin_tr_selected_rives -> eq(1) -> text());
+      $Data['poiima'] = strip_tags($urovin_tr_selected_rives -> eq(2) -> text());
+      $Data['urovin'] = strip_tags($urovin_tr_selected_rives -> eq(3) -> text());
+      $Data['delta'] = strip_tags($urovin_tr_selected_rives -> eq(4) -> text());
+      $Str_data = $crawler->filter("div.entry-content p")->text();
       $Array_date = array();
 
       preg_match("/.*([0-9]{2}\\.[0-9]{2}\\.[0-9]{4}).*/",$Str_data, $Array_date);
       $d1 = strtotime($Array_date[1]);
-      $Data['date'] =  date("Y-m-d", $d1);;
-
+      $Data['date'] =  date("Y-m-d", $d1);
       return $Data;
     }
 
@@ -49,10 +48,17 @@ class UrovinController extends Controller
       $date = date('Y-m-d');
       $Reka = Reka::where('url', $reka)->first();
       if(Urovin::UrovinNaDatu($date, $Reka)) {
-        $Belaj_sterlitamak = $this->Parser();
-        $Belaj_sterlitamak['reka_id'] = $Reka->id;
-        $urovin = Urovin::create($Belaj_sterlitamak);
+        $River_level = $this->Parser();
+        $River_level['reka_id'] = $Reka->id;
+       if( ! Urovin::AlreadyHaveADate($River_level['date'])){
+          $urovin = Urovin::create($River_level);
+         }
       }
+      if (isset($urovin) && $urovin instanceof Urovin){
+        EmailController::EmailSubnet($urovin -> urovin.' см!');
+        return dd(true);
+      }
+      return dd(false);
     }
 
     public static function generationImg($UrovinOnYesterdayToday, $name_img, $name_reki, $relative = false){ //class UrovinOnYesterdayToday

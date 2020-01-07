@@ -19,4 +19,17 @@ public static function UrovinNaDatu($date, $Reka){
   return true;
 }
 
+public static function last()
+{
+    $order = Urovin::latest()->get()->first();
+    return $order;
+}
+
+public static function AlreadyHaveADate($date){
+//  dd(date(Urovin::last()->date) < date($date));
+  if(date($date) > date(Urovin::last()->date)) {
+     return false;
+   }
+   return true;
+  }
 }

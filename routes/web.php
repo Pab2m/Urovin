@@ -1,12 +1,12 @@
 <?php
-Route::get('/parser/{reka}', 'UrovinController@GetParser');
+Route::get('/parser/{reka}', 'UrovinController@GetParser');//belaya
 Route::get('/test', 'UrovinController@GetCurrentWater');
 
 Route::get('/group/download/cover/{reka}', 'UrovinController@DownloadGroupCover');
 Route::match(['get','post'], '/api/vk', ['uses'=>'UrovinController@vk', 'as'=>'vk']);
 Route::get('/img/{reka}', 'UrovinController@ImgPoster');
 
-
+Route::get('/email', 'EmailController@EmailTest');
 
 
 //3ee402f7429bc7c3e6a83cdf61d18c19bac950e4eaee95f6b9f1f69756cfbcb53346d3180cd0a98848c23
