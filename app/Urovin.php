@@ -28,8 +28,8 @@ public static function last()
 public static function AlreadyHaveADate($date){
 //  dd(date(Urovin::last()->date) < date($date));
   if(date($date) > date(Urovin::last()->date)) {
-     return false;
+    return false;
    }
-   return true;
+    exit;
   }
 }

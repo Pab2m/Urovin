@@ -1,6 +1,8 @@
 <?php
 Route::get('/parser/{reka}', 'UrovinController@GetParser');//belaya
-Route::get('/test', 'UrovinController@GetCurrentWater');
+Route::get('/curl', 'UrovinController@curl');
+
+Route::get('/test', 'UrovinController@getProxy');
 
 Route::get('/group/download/cover/{reka}', 'UrovinController@DownloadGroupCover');
 Route::match(['get','post'], '/api/vk', ['uses'=>'UrovinController@vk', 'as'=>'vk']);

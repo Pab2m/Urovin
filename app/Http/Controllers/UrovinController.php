@@ -9,21 +9,38 @@ use App\UrovinOnYesterdayToday;
 use Intervention\Image\ImageManager;
 use Image;
 use App\Reka;
+use App\Proxy;
 
 class UrovinController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
 
     private function Parser(){
-      $html = file_get_contents(env('URL_PARSER', '1'));
+     $proxy = ProxyController::getProxy();
+    //  $html = file_get_contents(env('URL_PARSER', '1'));
+      if(!$proxy instanceof Proxy){
+        EmailController::EmailSubnet('Ошибка при получение Propxy в Parser()!!!');
+        exit;
+      }
+      $ip_port = $proxy->ip.':'.$proxy->port;
+      $ch = curl_init(env('URL_PARSER', '1'));
+      $headers = array(
+                        'cache-control: max-age=0',
+                        'upgrade-insecure-requests: 1',
+                        'user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0',
+                        'sec-fetch-user: ?1',
+                        'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                        'x-compress: null',
+                        'sec-fetch-site: none',
+                        'sec-fetch-mode: navigate',
+                        'accept-encoding: deflate, br',
+                        'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+      curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      $html = curl_exec($ch);
+
       // Create new instance for parser.
       $crawler = new Crawler(null, env('URL_PARSER', '1'));
       $crawler->addHtmlContent($html, 'UTF-8');
@@ -54,10 +71,12 @@ class UrovinController extends Controller
           $urovin = Urovin::create($River_level);
          }
       }
+
       if (isset($urovin) && $urovin instanceof Urovin){
         EmailController::EmailSubnet($urovin -> urovin.' см!');
         return dd(true);
       }
+      EmailController::EmailSubnet('Ошибка  в GetParser на '.$date);
       return dd(false);
     }
 
@@ -123,7 +142,6 @@ class UrovinController extends Controller
 
   public function GetCurrentWater(){
     $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(date("d.m.Y"));
-
   }
 
 
@@ -134,7 +152,7 @@ public function ImgPoster($url)
       $UrovinOnYesterdayToday = new UrovinOnYesterdayToday(time(), $Reka->id);//date("d.m.y")
       return '<img src="'.$this -> generationImg($UrovinOnYesterdayToday, $url, $Reka->name ,true).'">';
    }
-
-
 }
+
+
 }
