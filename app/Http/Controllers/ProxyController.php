@@ -8,11 +8,11 @@ use App\Proxy;
 class ProxyController extends Controller
 {
   public static function  getProxy(){
-
-    $proxy = Proxy::AlreadyHaveADate(date('Y-m-d'));
-
-    if($proxy instanceof Proxy){
-      return  $proxy;
+    $Proxy = Proxy::AlreadyHaveADate(date('Y-m-d'));
+  $i = 0;
+   while ($i < 8) {
+    if($Proxy instanceof Proxy && $Proxy->ReplayServer()){
+      return  $Proxy;
     }
     $headers = array(
                       'cache-control: max-age=0',
@@ -25,9 +25,11 @@ class ProxyController extends Controller
                       'sec-fetch-mode: navigate',
                       'accept-encoding: deflate, br',
                       'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+  if($i > 3){
+     $ProxyList =  env('ProxyList');
+  } else {$ProxyList =  env('ProxyList').'&country=RU';}
 
   $ch = curl_init(env('ProxyList'));
-
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
   curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
@@ -35,10 +37,22 @@ class ProxyController extends Controller
   $json_data = json_decode($data);
   curl_close($ch);
   if(property_exists($json_data, "error")){
-     EmailController::EmailSubnet('Ошибка при получение Proxy!!!');
+     EmailController::EmailSubnet('Ошибка при получение Proxy!!! На сервере getproxylist!');
      exit;
   }
   $proxy_array = array('ip' => $json_data->ip, 'port' => $json_data-> port, 'date'=> date('Y-m-d'));
-  return Proxy::create($proxy_array);
+  $Proxy = Proxy::CreateProxy($proxy_array);
+  if($Proxy instanceof Proxy) {
+    $Proxy->save();
+    return $Proxy;
+   }
+   $i++;
   }
+  return false;
+}
+
+public static function ProxyCheck() {
+  return 1;
+}
+
 }

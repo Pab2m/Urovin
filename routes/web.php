@@ -10,6 +10,7 @@ Route::get('/img/{reka}', 'UrovinController@ImgPoster');
 
 Route::get('/email', 'EmailController@EmailTest');
 
+Route::get('/check', 'ProxyController@ProxyCheck');
 
 //3ee402f7429bc7c3e6a83cdf61d18c19bac950e4eaee95f6b9f1f69756cfbcb53346d3180cd0a98848c23
 

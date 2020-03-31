@@ -26,8 +26,8 @@ public static function last()
 }
 
 public static function AlreadyHaveADate($date){
-//  dd(date(Urovin::last()->date) < date($date));
-  if(date($date) > date(Urovin::last()->date)) {
+   $urovin = Urovin::last();
+  if($urovin instanceof Urovin && date($date) > date($urovin->date)) {
     return false;
    }
     exit;

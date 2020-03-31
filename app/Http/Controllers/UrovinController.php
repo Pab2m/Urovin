@@ -13,16 +13,14 @@ use App\Proxy;
 
 class UrovinController extends Controller
 {
-
     private function Parser(){
      $proxy = ProxyController::getProxy();
-    //  $html = file_get_contents(env('URL_PARSER', '1'));
       if(!$proxy instanceof Proxy){
         EmailController::EmailSubnet('Ошибка при получение Propxy в Parser()!!!');
         exit;
       }
-      $ip_port = $proxy->ip.':'.$proxy->port;
-      $ch = curl_init(env('URL_PARSER', '1'));
+     $ip_port = $proxy->ip.':'.$proxy->port;
+     $ch = curl_init();
       $headers = array(
                         'cache-control: max-age=0',
                         'upgrade-insecure-requests: 1',
@@ -34,18 +32,25 @@ class UrovinController extends Controller
                         'sec-fetch-mode: navigate',
                         'accept-encoding: deflate, br',
                         'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
+      curl_setopt($ch, CURLOPT_URL, env('URL_PARSER', '1'));
+  //    $ip_port = '';
       curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+      curl_setopt($ch, CURLINFO_HEADER_OUT, true);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($ch, CURLOPT_HEADER, false);
+      curl_setopt($ch, CURLOPT_HEADER, 0);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-      $html = curl_exec($ch);
+      curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
 
+      $html = curl_exec($ch);
+      $curl_errno = curl_errno($ch);
+      curl_close($ch);
+      if(!$curl_errno > 0) {
       // Create new instance for parser.
       $crawler = new Crawler(null, env('URL_PARSER', '1'));
       $crawler->addHtmlContent($html, 'UTF-8');
       // Get title text.
       $urovin_tr_selected_rives = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
+
       $Data = [];
       $Data['reka_name'] = strip_tags($urovin_tr_selected_rives -> eq(0) -> text());
       $Data['site'] = strip_tags($urovin_tr_selected_rives -> eq(1) -> text());
@@ -53,13 +58,18 @@ class UrovinController extends Controller
       $Data['urovin'] = strip_tags($urovin_tr_selected_rives -> eq(3) -> text());
       $Data['delta'] = strip_tags($urovin_tr_selected_rives -> eq(4) -> text());
       $Str_data = $crawler->filter("div.entry-content p")->text();
+
       $Array_date = array();
 
       preg_match("/.*([0-9]{2}\\.[0-9]{2}\\.[0-9]{4}).*/",$Str_data, $Array_date);
       $d1 = strtotime($Array_date[1]);
       $Data['date'] =  date("Y-m-d", $d1);
       return $Data;
-    }
+    } else {
+      EmailController::EmailSubnet('Ошибка при получение узлов!!!');
+      exit;
+     }
+  }
 
    public function GetParser($reka) {
       $date = date('Y-m-d');
@@ -67,17 +77,18 @@ class UrovinController extends Controller
       if(Urovin::UrovinNaDatu($date, $Reka)) {
         $River_level = $this->Parser();
         $River_level['reka_id'] = $Reka->id;
-       if( ! Urovin::AlreadyHaveADate($River_level['date'])){
+
+       if(!Urovin::AlreadyHaveADate($River_level['date'])){
           $urovin = Urovin::create($River_level);
          }
       }
 
       if (isset($urovin) && $urovin instanceof Urovin){
         EmailController::EmailSubnet($urovin -> urovin.' см!');
-        return dd(true);
+        return dd(1);
       }
       EmailController::EmailSubnet('Ошибка  в GetParser на '.$date);
-      return dd(false);
+      return dd(0);
     }
 
     public static function generationImg($UrovinOnYesterdayToday, $name_img, $name_reki, $relative = false){ //class UrovinOnYesterdayToday
