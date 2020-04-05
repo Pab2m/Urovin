@@ -14,12 +14,11 @@ use App\Proxy;
 class UrovinController extends Controller
 {
     private function Parser(){
-     $proxy = ProxyController::getProxy();
-      if(!$proxy instanceof Proxy){
+     $Proxy = ProxyController::getProxy();
+      if(!$Proxy instanceof Proxy){
         EmailController::EmailSubnet('Ошибка при получение Propxy в Parser()!!!');
         exit;
       }
-     $ip_port = $proxy->ip.':'.$proxy->port;
      $ch = curl_init();
       $headers = array(
                         'cache-control: max-age=0',
@@ -33,8 +32,7 @@ class UrovinController extends Controller
                         'accept-encoding: deflate, br',
                         'accept-language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7');
       curl_setopt($ch, CURLOPT_URL, env('URL_PARSER', '1'));
-  //    $ip_port = '';
-      curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+      curl_setopt($ch, CURLOPT_PROXY, $Proxy->StrProxy());
       curl_setopt($ch, CURLINFO_HEADER_OUT, true);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
       curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -43,6 +41,7 @@ class UrovinController extends Controller
 
       $html = curl_exec($ch);
       $curl_errno = curl_errno($ch);
+      $curl_error = curl_error($ch);
       curl_close($ch);
       if(!$curl_errno > 0) {
       // Create new instance for parser.
@@ -70,19 +69,16 @@ class UrovinController extends Controller
       exit;
      }
   }
-
    public function GetParser($reka) {
       $date = date('Y-m-d');
       $Reka = Reka::where('url', $reka)->first();
       if(Urovin::UrovinNaDatu($date, $Reka)) {
         $River_level = $this->Parser();
         $River_level['reka_id'] = $Reka->id;
-
        if(!Urovin::AlreadyHaveADate($River_level['date'])){
           $urovin = Urovin::create($River_level);
          }
       }
-
       if (isset($urovin) && $urovin instanceof Urovin){
         EmailController::EmailSubnet($urovin -> urovin.' см!');
         return dd(1);

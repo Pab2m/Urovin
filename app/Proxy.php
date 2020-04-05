@@ -26,27 +26,39 @@ public static function AlreadyHaveADate($date){
 public static function CreateProxy($data){
   $Proxy = new Proxy();
   $Proxy -> fill($data);
- if($Proxy -> ReplayServer()){
+  if($Proxy -> ReplayServer()){
    return $Proxy;
- } else {return false;}
-
-}
+  } else {return false;}
+ }
 
 public function ReplayServer(){
+       $healthy = array("!ip!", "!port!");
+       $yummy   = array($this->ip, $this->port);
+       $url = str_replace($healthy, $yummy, env('ReplayServer'));
        $ch = curl_init();
-       curl_setopt($ch, CURLOPT_URL, env('APP_URL').'/check');
-       $ip_port = $this->ip.':'.$this->port;
-       curl_setopt($ch, CURLOPT_PROXY, $ip_port);
+      // curl_setopt($ch, CURLOPT_URL, env('APP_URL').'/check');
+       curl_setopt($ch, CURLOPT_URL, $url);
        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
        curl_setopt($ch, CURLOPT_HEADER, 0);
        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
        curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
        $ch_errno = curl_errno($ch);
+       $curl_error = curl_error($ch);
+       $html = curl_exec($ch);
        curl_close($ch);
-       if($ch_errno > 0){
+       if(!$ch_errno > 0){
+        $ReaplyArray = json_decode($html, true);
+        if((isset($ReaplyArray[0]['status'])) && ($ReaplyArray[0]['status'] =='ok')){
+          return true;
+        }
          return false;
-       } else {
-         return true;}
+       }
+       return false;
     }
+
+public function StrProxy(){
+  return $this->ip.':'.$this->port;
+}
+
 }
