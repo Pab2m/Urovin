@@ -34,14 +34,16 @@ private static function ProxyList(){
   if(!$curl_errno > 0){
     $lines = preg_split('/\\r\\n?|\\n/', $html);
     foreach ($lines as $key => $value) {
-    $lineProxy = preg_split('/:/', $value);
-    $arrayProxy = array('ip' => $lineProxy[0], 'port'=>$lineProxy[1], 'date'=>date('Y-m-d'));
-    $Proxy = Proxy::CreateProxy($arrayProxy);
-    if($Proxy instanceof Proxy){
-       $Proxy -> save();
-       return $Proxy;
-      }
+    if(preg_match("/(:80)$/", $value)) {
+      $lineProxy = preg_split('/:/', $value);
+      $arrayProxy = array('ip' => $lineProxy[0], 'port'=>$lineProxy[1], 'date'=>date('Y-m-d'));
+      $Proxy = Proxy::CreateProxy($arrayProxy);
+      if($Proxy instanceof Proxy){
+         $Proxy -> save();
+         return $Proxy;
+        }
     }
+  }
   } else{
     EmailController::EmailSubnet('Ошибка при получение Proxy!!! На сервере ProxyList!');
     exit;

@@ -20,7 +20,7 @@ class UrovinController extends Controller
         exit;
       }
      $ch = curl_init();
-      $headers = array(
+     $headers = array(
                         'cache-control: max-age=0',
                         'upgrade-insecure-requests: 1',
                         'user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0',
@@ -40,16 +40,17 @@ class UrovinController extends Controller
       curl_setopt($ch, CURLOPT_FRESH_CONNECT, 1);
 
       $html = curl_exec($ch);
+
       $curl_errno = curl_errno($ch);
       $curl_error = curl_error($ch);
       curl_close($ch);
+
       if(!$curl_errno > 0) {
       // Create new instance for parser.
       $crawler = new Crawler(null, env('URL_PARSER', '1'));
       $crawler->addHtmlContent($html, 'UTF-8');
       // Get title text.
       $urovin_tr_selected_rives = $crawler->filter("table tr")->eq(1) ->children();//->eq(4)->text() ;
-
       $Data = [];
       $Data['reka_name'] = strip_tags($urovin_tr_selected_rives -> eq(0) -> text());
       $Data['site'] = strip_tags($urovin_tr_selected_rives -> eq(1) -> text());
